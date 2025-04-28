@@ -8,25 +8,23 @@ namespace Web.API.Endpoints.Metrics
 {
     internal sealed class Post : IEndpoint
     {
-        public sealed class Request
-        {
-            public string Metric { get; set; }
-            public double Value { get; set; }
-            public DateTime Timestamp { get; set; }
-            public Dictionary<string, string> Tags { get; set; }
-        }
+        public sealed record Request(
+            string MetricName,
+            double Value,
+            DateTime Timestamp,
+            Dictionary<string, string> Tags);
 
         public void MapEndpoint(IEndpointRouteBuilder app)
         {
             app.MapPost("metrics", async (Request request, ICommandHandler<CreateMetricsCommand, Result> handler, CancellationToken cancellationToken) =>
             {
                 var command = new CreateMetricsCommand
-                {
-                    Metric = request.Metric,
-                    Value = request.Value,
-                    Timestamp = request.Timestamp,
-                    Tags = request.Tags,
-                };
+                (
+                    request.MetricName,
+                    request.Value,
+                    request.Timestamp,
+                    request.Tags
+                );
 
                 var result = await handler.Handle(command, cancellationToken);
 

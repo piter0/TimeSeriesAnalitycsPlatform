@@ -1,3 +1,10 @@
+using HealthChecks.UI.Client;
+using Infrastructure;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
+using Serilog;
+using System.Reflection;
+using Web.API.Extensions;
+
 namespace Web.API
 {
     public class Program
@@ -6,13 +13,22 @@ namespace Web.API
         {
             var builder = WebApplication.CreateBuilder(args);
 
-            // Add services to the container.
+            builder.Host.UseSerilog((context, loggerConfig) => loggerConfig.ReadFrom.Configuration(context.Configuration));
+
             builder.Services.AddAuthorization();
 
+            builder.Services.AddInfrastructure(builder.Configuration);
+
+            builder.Services.AddEndpoints(Assembly.GetExecutingAssembly());
 
             var app = builder.Build();
 
-            // Configure the HTTP request pipeline.
+            app.MapEndpoints();
+
+            app.MapHealthChecks("health", new HealthCheckOptions
+            {
+                ResponseWriter = UIResponseWriter.WriteHealthCheckUIResponse
+            });
 
             app.UseHttpsRedirection();
 

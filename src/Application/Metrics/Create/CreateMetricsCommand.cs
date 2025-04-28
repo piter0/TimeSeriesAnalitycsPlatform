@@ -4,19 +4,17 @@ using SharedKernel;
 
 namespace Application.Metrics.Create
 {
-    public sealed class CreateMetricsCommand : ICommand
-    {
-        public string Metric { get; set; }
-        public double Value { get; set; }
-        public DateTime Timestamp { get; set; }
-        public Dictionary<string, string> Tags { get; set; }
-    }
+    public sealed record CreateMetricsCommand(
+            string MetricName,
+            double Value,
+            DateTime Timestamp,
+            Dictionary<string, string> Tags) : ICommand;
 
     public sealed class CreateMetricsCommandValidator : AbstractValidator<CreateMetricsCommand>
     {
         public CreateMetricsCommandValidator()
         {
-            RuleFor(c => c.Metric).NotEmpty();
+            RuleFor(c => c.MetricName).NotEmpty();
         }
     }
 
@@ -28,6 +26,4 @@ namespace Application.Metrics.Create
             return Result.Success();
         }
     }
-
-
 }
